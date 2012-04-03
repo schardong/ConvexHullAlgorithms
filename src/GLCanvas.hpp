@@ -1,7 +1,8 @@
-#ifndef __GL_CANVAS_H__
-#define __GL_CANVAS_H__
+#ifndef __GL_CANVAS_HPP__
+#define __GL_CANVAS_HPP__
 
 #include <SCV/Canvas.h>
+#include "Edge.hpp"
 
 const GLfloat g_pointRadius = 9.f;
 
@@ -9,8 +10,9 @@ class GLCanvas : public scv::Canvas
 {
 private:
   std::vector<scv::Point> m_vPoints;
+  std::vector<Edge> m_vEdges;
   scv::Point* m_pSelectedPoint;
-  bool mouseHeld;
+  bool m_bMouseHeld;
 
   /**
    * collisionTest: Tests if a given point p is within an existing
@@ -34,4 +36,4 @@ public:
 
 };
 
-#endif /* __GL_CANVAS_H__ */
+#endif /* __GL_CANVAS_HPP__ */

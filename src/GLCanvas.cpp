@@ -2,18 +2,17 @@
 
 GLCanvas::GLCanvas(scv::Point p1, scv::Point p2) : scv::Canvas(p1, p2)
 {
-  mouseHeld = false;
+  m_bMouseHeld = false;
   m_pSelectedPoint = NULL;
   glPointSize(g_pointRadius);
-  m_vPoints.push_back(p1 + 50);
-  m_vPoints.push_back(p2 - 40);
 }
 
 GLCanvas::~GLCanvas()
 {
   m_vPoints.clear();
+  m_vEdges.clear();
   m_pSelectedPoint = NULL;
-  mouseHeld = false;
+  m_bMouseHeld = false;
 }
 
 std::vector<scv::Point>::iterator GLCanvas::collisionTest(scv::Point p)
@@ -34,6 +33,8 @@ void GLCanvas::render()
       glVertex2i(m_vPoints[i].x, m_vPoints[i].y);
     glEnd();
   }
+  for(int i = 0; i < m_vEdges.size(); i++)
+    m_vEdges[i].render();
 }
 
 void GLCanvas::update()
@@ -59,7 +60,7 @@ void GLCanvas::onMouseClick(const scv::MouseEvent &evt)
       if(m_pSelectedPoint == &*it)
       {
         m_pSelectedPoint = NULL;
-        mouseHeld = false;
+        m_bMouseHeld = false;
       }
       m_vPoints.erase(it);
     }
@@ -71,7 +72,7 @@ void GLCanvas::onMouseHold (const scv::MouseEvent &evt)
   //A point will be moved only if the left mouse button is held.
   if(evt.getButton() == evt.LEFT)
   {
-    if(mouseHeld == false)
+    if(m_bMouseHeld == false)
     {
       if(evt.getButton() == evt.LEFT)
       {
@@ -82,7 +83,7 @@ void GLCanvas::onMouseHold (const scv::MouseEvent &evt)
           m_pSelectedPoint = &*it;
         }
       }
-      mouseHeld = true;
+      m_bMouseHeld = true;
     }
     else
     {
@@ -95,5 +96,5 @@ void GLCanvas::onMouseHold (const scv::MouseEvent &evt)
 void GLCanvas::onMouseUp(const scv::MouseEvent &evt)
 {
   m_pSelectedPoint = NULL;
-  mouseHeld = false;
+  m_bMouseHeld = false;
 }

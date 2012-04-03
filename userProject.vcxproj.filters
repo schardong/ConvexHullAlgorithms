@@ -10,12 +10,18 @@
     <ClCompile Include="src\GLCanvas.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Edge.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="src\GLCanvas.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Edge.hpp">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
