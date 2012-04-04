@@ -3,15 +3,16 @@
 
 #include <SCV/Canvas.h>
 #include "Edge.hpp"
+#include "GLPoint.hpp"
 
 static const GLfloat g_pointRadius = 9.f;
 
 class GLCanvas : public scv::Canvas
 {
 private:
-  std::vector<scv::Point> m_vPoints;
+  std::vector<GLPoint> m_vPoints;
   std::vector<Edge> m_vEdges;
-  scv::Point* m_pSelectedPoint;
+  GLPoint* m_pSelectedPoint;
   bool m_bMouseHeld;
 
   /**
@@ -21,14 +22,14 @@ private:
    * @returns: An iterator to the point hit, or end() if no point was
    * hit.
    */
-  std::vector<scv::Point>::iterator collisionTest(scv::Point p);
+  std::vector<GLPoint>::iterator collisionTest(GLPoint p);
 
 public:
-  GLCanvas(scv::Point p1, scv::Point p2);
+  GLCanvas(GLPoint p1, GLPoint p2);
   virtual ~GLCanvas();
 
   //Convex Hull functions.
-  std::vector<scv::Point> giftWrap(std::vector<scv::Point> points);
+  std::vector<GLPoint> giftWrap(std::vector<GLPoint> points);
 
   //Drawing callbacks.
   void render();

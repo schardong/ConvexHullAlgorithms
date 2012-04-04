@@ -24,6 +24,9 @@
     <ClInclude Include="src\Edge.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="src\GLPoint.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">

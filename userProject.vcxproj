@@ -20,6 +20,7 @@
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Edge.hpp" />
     <ClInclude Include="src\GLCanvas.hpp" />
+    <ClInclude Include="src\GLPoint.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E0540573-8D8B-40E3-8794-0E168A9AF426}</ProjectGuid>

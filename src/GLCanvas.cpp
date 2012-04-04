@@ -1,6 +1,8 @@
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include "GLCanvas.hpp"
 
-GLCanvas::GLCanvas(scv::Point p1, scv::Point p2) : scv::Canvas(p1, p2)
+GLCanvas::GLCanvas(GLPoint p1, GLPoint p2) : scv::Canvas(p1, p2)
 {
   m_bMouseHeld = false;
   m_pSelectedPoint = NULL;
@@ -15,7 +17,7 @@ GLCanvas::~GLCanvas()
   m_bMouseHeld = false;
 }
 
-std::vector<scv::Point>::iterator GLCanvas::collisionTest(scv::Point p)
+std::vector<GLPoint>::iterator GLCanvas::collisionTest(GLPoint p)
 {
   for(auto it = m_vPoints.begin(); it != m_vPoints.end(); it++)
     if(p.x > it->x - g_pointRadius && p.x < it->x + g_pointRadius && p.y > it->y - g_pointRadius && p.y < it->y + g_pointRadius)
@@ -23,14 +25,15 @@ std::vector<scv::Point>::iterator GLCanvas::collisionTest(scv::Point p)
   return m_vPoints.end();
 }
 
-std::vector<scv::Point> GLCanvas::giftWrap(std::vector<scv::Point> points)
+std::vector<GLPoint> GLCanvas::giftWrap(std::vector<GLPoint> points)
 {
-  std::vector<scv::Point> chPoints;
+  std::vector<GLPoint> chPoints;
 
   if(points.size() > 0)
   {
     int x = MAXDWORD32;
     int idx = -1;
+    GLPoint currPoint(0, 1);
 
     //Finds the leftmost point of the set.
     for(int i = 0; i < points.size(); i++)
@@ -43,6 +46,18 @@ std::vector<scv::Point> GLCanvas::giftWrap(std::vector<scv::Point> points)
     }
 
     chPoints.push_back(points[idx]);
+    float smlAngle = (float) (2 * M_PI);
+
+    do
+    {
+      for(int i = 0; i < points.size(); i++)
+      {
+        float angle = acos(currPoint * (points[i] - chPoints[chPoints.size() - 1]));
+        //calc angle between the current point and every other point.
+        //test wheter the angle is smaller than the angle we have.
+        //if it is, add it to the convex hull.
+      }
+    } while(smlAngle == 2 * M_PI); //chance the condition!
 
   }
 
@@ -72,9 +87,9 @@ void GLCanvas::onMouseClick(const scv::MouseEvent &evt)
   //Insert new points on the canvas.
   if(evt.getButton() == evt.LEFT)
   {
-    auto it = collisionTest(evt.getPosition());
+    auto it = collisionTest(GLPoint(evt.getPosition()));
     if(it == m_vPoints.end())
-      m_vPoints.push_back(scv::Point(evt.getPosition()));
+      m_vPoints.push_back(GLPoint(evt.getPosition()));
   }
 
   //Erase points from the canvas.
