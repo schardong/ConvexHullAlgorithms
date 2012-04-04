@@ -23,6 +23,32 @@ std::vector<scv::Point>::iterator GLCanvas::collisionTest(scv::Point p)
   return m_vPoints.end();
 }
 
+std::vector<scv::Point> GLCanvas::giftWrap(std::vector<scv::Point> points)
+{
+  std::vector<scv::Point> chPoints;
+
+  if(points.size() > 0)
+  {
+    int x = MAXDWORD32;
+    int idx = -1;
+
+    //Finds the leftmost point of the set.
+    for(int i = 0; i < points.size(); i++)
+    {
+      if(points[i].x < x)
+      {
+        x = points[i].x;
+        idx = i;
+      }
+    }
+
+    chPoints.push_back(points[idx]);
+
+  }
+
+  return chPoints;
+}
+
 void GLCanvas::render()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

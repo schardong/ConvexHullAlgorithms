@@ -4,7 +4,7 @@
 #include <SCV/Canvas.h>
 #include "Edge.hpp"
 
-const GLfloat g_pointRadius = 9.f;
+static const GLfloat g_pointRadius = 9.f;
 
 class GLCanvas : public scv::Canvas
 {
@@ -27,9 +27,13 @@ public:
   GLCanvas(scv::Point p1, scv::Point p2);
   virtual ~GLCanvas();
 
+  //Convex Hull functions.
+  std::vector<scv::Point> giftWrap(std::vector<scv::Point> points);
+
+  //Drawing callbacks.
   void render();
   void update();
-
+  //Mouse action callbacks.
   virtual void onMouseClick(const scv::MouseEvent &evt);
   virtual void onMouseHold (const scv::MouseEvent &evt);
   virtual void onMouseUp(const scv::MouseEvent &evt);
