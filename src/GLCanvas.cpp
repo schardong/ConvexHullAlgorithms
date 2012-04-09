@@ -29,9 +29,70 @@ std::vector<Math::Vector4>::iterator GLCanvas::collisionTest(Math::Vector4 p)
   return m_vPoints.end();
 }
 
-std::vector<Math::Vector4> GLCanvas::giftWrap(std::vector<Math::Vector4> points)
+std::vector<int> GLCanvas::giftWrap(std::vector<Math::Vector4> points)
 {
-  std::vector<Math::Vector4> chPoints;
+  std::vector<int> chPointsIdx;
+
+  if(points.size() > 2)
+  {
+    Math::Scalar y = (Math::Scalar) getHeight();
+    int idx = -1;
+    
+    //Finds the upmost point of the set.
+    for(int i = 0; i < points.size(); i++)
+    {
+      if(points[i][1] < y)
+      {
+        y = points[i][1];
+        idx = i;
+      }
+    }
+    //Add the point found to the convex hull vector.
+    chPointsIdx.push_back(idx);
+
+    Math::Vector4 pivotPoint(-1, 0);
+    do
+    {
+      idx = -1;
+      Math::Scalar smlAngle = 2 * Math::PI;
+
+      for(int i = 0; i < points.size(); i++)
+      {
+        Math::Vector4 currPoint = points[i] - points[chPointsIdx[chPointsIdx.size() - 1]];
+        currPoint.normalize();
+        Math::Scalar angle = Math::ArcCosine(pivotPoint * currPoint);
+
+        //If the angle between the vectors is less than 0, we jump to the next iteration.
+        if(currPoint[1] * pivotPoint[0] > currPoint[0] * pivotPoint[1])
+          continue;
+        
+        //If the angle is smaller than the smallest angle so far and the points are not collinear
+        //we store the index of the point, for he is convexHull good candidate to be in the convex hull.
+        if(angle < smlAngle && angle != 0.0 && angle != Math::PI && angle != 2 * Math::PI)
+        {
+          smlAngle = angle;
+          idx = i;
+        }
+      }
+
+      //If we found convexHull vaild point for the convex hull, we add it to the vector and chose convexHull new pivot
+      //point based on him and the last point added.
+      if(idx >= 0 && idx < points.size())
+      {
+        chPointsIdx.push_back(idx);
+        pivotPoint = (points[idx] - points[chPointsIdx[chPointsIdx.size() - 2]]).normalized();
+      }
+
+    } while(points.size() > chPointsIdx.size() && points[chPointsIdx[chPointsIdx.size() - 1]] != points[chPointsIdx[0]]);
+    
+  }
+  return chPointsIdx;
+}
+
+std::vector<int> GLCanvas::grahamScan(std::vector<Math::Vector4> points)
+{
+  std::cout << "GLCanvas::grahamScan -> not yet implemented!" << std::endl;
+  std::vector<int> chPointsIdx;
 
   if(points.size() > 2)
   {
@@ -48,45 +109,10 @@ std::vector<Math::Vector4> GLCanvas::giftWrap(std::vector<Math::Vector4> points)
       }
     }
     //Add the point found to the convex hull vector.
-    chPoints.push_back(points[idx]);
-
-    Math::Vector4 pivotPoint(1, 0);
-    do
-    {
-      idx = -1;
-      Math::Scalar smlAngle = 2 * Math::PI;
-
-      for(int i = 0; i < points.size(); i++)
-      {
-        if(points[i] == chPoints[chPoints.size() - 1])
-          continue;
-
-        Math::Vector4 currPoint = points[i] - chPoints[chPoints.size() - 1];
-        currPoint.normalize();
-        Math::Scalar angle = Math::ArcCosine(pivotPoint * currPoint);
-        
-        if(angle < smlAngle && angle != 0.0 && angle != Math::PI && angle != 2 * Math::PI)
-        {
-          smlAngle = angle;
-          idx = i;
-        }
-      }
-
-      if(idx >= 0 && idx < points.size())
-        chPoints.push_back(points[idx]);
-
-      pivotPoint = points[idx] - chPoints[chPoints.size() - 2];
-      pivotPoint.normalize();
-
-    } while(points.size() > chPoints.size() && chPoints[chPoints.size() - 1] != chPoints[0]);
-
-    //chPoints.pop_back();
-    //The loop above will be executed until we arrive at the first point
-    //added to the convex hull vector.
-
+    chPointsIdx.push_back(idx);
   }
-
-  return chPoints;
+  
+  return chPointsIdx;
 }
 
 void GLCanvas::render()
@@ -171,24 +197,41 @@ void GLCanvas::onMouseUp(const scv::MouseEvent &evt)
 
 void GLCanvas::onKeyPressed(const scv::KeyEvent& evt)
 {
-  std::vector<Math::Vector4> a;
+  std::vector<int> convexHull;
   switch(evt.keycode)
   {
   case GLUT_KEY_F1:
-    a = giftWrap(m_vPoints);
+    convexHull = giftWrap(m_vPoints);
     m_vEdges.clear();
-    if(a.size() > 0)
+    if(convexHull.size() > 2)
     {
-      for(int i = 1; i < a.size(); i++)
-        m_vEdges.push_back(Edge(scv::Point((int) a[i - 1][0], (int) a[i - 1][1]), scv::Point((int) a[i][0], (int) a[i][1])));
-      m_vEdges.push_back(Edge(scv::Point((int) a[0][0], (int) a[0][1]), scv::Point((int) a[a.size() - 1][0], (int) a[a.size() - 1][1])));
-      std::cout << std::endl;
+      for(int i = 1; i < convexHull.size(); i++)
+        m_vEdges.push_back(Edge(m_vPoints[convexHull[i - 1]], m_vPoints[convexHull[i]]));
+      m_vEdges.push_back(Edge(m_vPoints[convexHull[convexHull.size() - 1]], m_vPoints[convexHull[0]]));
     }
     break;
   case GLUT_KEY_F2:
+    convexHull = grahamScan(m_vPoints);
+    m_vEdges.clear();
+    if(convexHull.size() > 2)
+    {
+      for(int i = 1; i < convexHull.size(); i++)
+      {
+        std::cout << convexHull[i - 1] << " ";
+        m_vEdges.push_back(Edge(m_vPoints[convexHull[i - 1]], m_vPoints[convexHull[i]]));
+      }
+      m_vEdges.push_back(Edge(m_vPoints[convexHull[convexHull.size() - 1]], m_vPoints[convexHull[0]]));
+      std::cout << convexHull[convexHull.size() - 1] << std::endl;
+    }
+    break;
+  case GLUT_KEY_F3:
     for(int i = 0; i < m_vPoints.size(); i++)
       std::cout << m_vPoints[i] << std::endl;
     std::cout << std::endl;
+    break;
+  case GLUT_KEY_F4:
+    m_vPoints.clear();
+    m_vEdges.clear();
     break;
   }
 }

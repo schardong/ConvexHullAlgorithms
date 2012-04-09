@@ -36,14 +36,15 @@ Vector4::~Vector4(void)
 
 Scalar Vector4::norm(void)
 {
-  return (SquareRoot((*this)[0] * (*this)[0] + (*this)[1] * (*this)[1] + (*this)[2] * (*this)[2]));
+  return SquareRoot((*this) * (*this));
 }
 
 void Vector4::normalize(void)
 {
-  m[0] /= norm();
-  m[1] /= norm();
-  m[2] /= norm();
+  Scalar n = norm();
+  m[0] /= n;
+  m[1] /= n;
+  m[2] /= n;
 }
 
 Vector4 Vector4::normalized(void)

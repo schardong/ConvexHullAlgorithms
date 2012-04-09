@@ -31,7 +31,8 @@ public:
   virtual ~GLCanvas();
 
   //Convex Hull functions.
-  std::vector<Math::Vector4> giftWrap(std::vector<Math::Vector4> points);
+  std::vector<int> giftWrap(std::vector<Math::Vector4> points);
+  std::vector<int> grahamScan(std::vector<Math::Vector4> points);
 
   //Drawing callbacks.
   void render();
