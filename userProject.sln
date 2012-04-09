@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "userProject", "userProject.vcxproj", "{E0540573-8D8B-40E3-8794-0E168A9AF426}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Math", "Math\Math.vcxproj", "{9F4A9A00-1919-417A-9636-31258AE8A2CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -17,6 +19,14 @@ Global
 		{E0540573-8D8B-40E3-8794-0E168A9AF426}.Release|Win32.ActiveCfg = Release|Win32
 		{E0540573-8D8B-40E3-8794-0E168A9AF426}.Release|Win32.Build.0 = Release|Win32
 		{E0540573-8D8B-40E3-8794-0E168A9AF426}.Release|x64.ActiveCfg = Release|Win32
+		{9F4A9A00-1919-417A-9636-31258AE8A2CD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9F4A9A00-1919-417A-9636-31258AE8A2CD}.Debug|Win32.Build.0 = Debug|Win32
+		{9F4A9A00-1919-417A-9636-31258AE8A2CD}.Debug|x64.ActiveCfg = Debug|x64
+		{9F4A9A00-1919-417A-9636-31258AE8A2CD}.Debug|x64.Build.0 = Debug|x64
+		{9F4A9A00-1919-417A-9636-31258AE8A2CD}.Release|Win32.ActiveCfg = Release|Win32
+		{9F4A9A00-1919-417A-9636-31258AE8A2CD}.Release|Win32.Build.0 = Release|Win32
+		{9F4A9A00-1919-417A-9636-31258AE8A2CD}.Release|x64.ActiveCfg = Release|x64
+		{9F4A9A00-1919-417A-9636-31258AE8A2CD}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

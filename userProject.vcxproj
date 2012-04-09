@@ -20,7 +20,11 @@
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Edge.hpp" />
     <ClInclude Include="src\GLCanvas.hpp" />
-    <ClInclude Include="src\GLPoint.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Math\Math.vcxproj">
+      <Project>{9f4a9a00-1919-417a-9636-31258ae8a2cd}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E0540573-8D8B-40E3-8794-0E168A9AF426}</ProjectGuid>
@@ -65,13 +69,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Math/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)..\lib\win32\*.lib;$(SolutionDir)..\lib\win32\scv\scv-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)..\lib\win32\*.lib;$(SolutionDir)..\lib\win32\scv\scv-debug.lib;$(OutDir)\Math.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "GLCanvas.hpp"
+#include "GLPoint.hpp"
 
 Application::Application(void) : Kernel()
 {
@@ -53,7 +54,6 @@ void Application::onMouseWheel(const scv::MouseEvent &evt)
 
 void Application::onKeyPressed(const scv::KeyEvent &evt)
 {
-  std::cout << evt.keycode << std::endl;
   switch(evt.keycode)
   {
   case 27:
