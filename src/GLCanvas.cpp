@@ -29,6 +29,11 @@ std::vector<Math::Vector4>::iterator GLCanvas::collisionTest(Math::Vector4 p)
   return m_vPoints.end();
 }
 
+Math::Scalar GLCanvas::ccw(Math::Vector4 v1, Math::Vector4 v2, Math::Vector4 v3)
+{
+  return (v1[0] * v2[1] + v2[0] * v3[1] + v3[0] * v1[1]) - (v3[0] * v2[1] + v1[0] * v3[1] + v2[0] * v1[1]);
+}
+
 std::vector<int> GLCanvas::giftWrap(std::vector<Math::Vector4> points)
 {
   std::vector<int> chPointsIdx;
@@ -91,18 +96,18 @@ std::vector<int> GLCanvas::giftWrap(std::vector<Math::Vector4> points)
 
 std::vector<int> GLCanvas::grahamScan(std::vector<Math::Vector4> points)
 {
-  std::cout << "GLCanvas::grahamScan -> not yet implemented!" << std::endl;
+  std::cout << "GLCanvas::grahamScan -> partially implemented!" << std::endl;
   std::vector<int> chPointsIdx;
 
   if(points.size() > 2)
   {
-    Math::Scalar y = 0.0;
+    Math::Scalar y = (Math::Scalar) getHeight();
     int idx = -1;
-
-    //Finds the bottom-most point of the set.
+    
+    //Finds the upmost point of the set.
     for(int i = 0; i < points.size(); i++)
     {
-      if(points[i][1] > y)
+      if(points[i][1] < y)
       {
         y = points[i][1];
         idx = i;
@@ -110,6 +115,46 @@ std::vector<int> GLCanvas::grahamScan(std::vector<Math::Vector4> points)
     }
     //Add the point found to the convex hull vector.
     chPointsIdx.push_back(idx);
+
+    //Sort the points by their angle with the X axis.
+    //Bubble sort for simplicity sake.
+    Math::Vector4 xVector(1, 0);
+    for(int i = 0; i < points.size(); i++)
+    {
+      Math::Scalar iAng = xVector * points[i].normalized();
+      for(int j = 0; j < points.size(); j++)
+      {
+        Math::Scalar jAng = xVector * points[j].normalized();
+        if(jAng < iAng)
+        {
+          Math::Vector4 aux = points[i];
+          points[i] = points[j];
+          points[j] = aux;
+        }
+      }
+    }
+
+    do
+    {
+      for(int i = 2; i < points.size() - 1; i++)
+      {
+        if(ccw(points[i - 2], points[i - 1], points[i]) <= 0)
+        {
+          std::cout << "CCW <= 0\t" << ccw(points[i - 1], points[i], points[i + 1]) << std::endl;
+          std::cout << "\t" << i - 2 << "  " << i - 1 << "  " << i << std::endl;
+          std::cout << "\t" << points[i - 1] << "  " << points[i] << "  " << points[i + 1] << std::endl;
+          continue;
+        }
+
+        if(ccw(points[i - 1], points[i], points[i + 1]) > 0)
+        {
+          chPointsIdx.push_back(i);
+          std::cout << i << " added to the hull." << std::endl;
+        }
+
+      }
+    } while(chPointsIdx[chPointsIdx.size() - 1] != chPointsIdx[0]);
+
   }
   
   return chPointsIdx;

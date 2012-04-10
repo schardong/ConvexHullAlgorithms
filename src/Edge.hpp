@@ -1,7 +1,6 @@
 #ifndef __EDGE_HPP__
 #define __EDGE_HPP__
 
-
 #include <Vector4.hpp>
 
 class Edge

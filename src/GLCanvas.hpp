@@ -3,6 +3,7 @@
 
 #include <SCV/Canvas.h>
 #include <Vector4.hpp>
+#include <Scalar.hpp>
 
 class scv::Point;
 class Edge;
@@ -25,6 +26,17 @@ private:
    * hit.
    */
   std::vector<Math::Vector4>::iterator collisionTest(Math::Vector4 p);
+
+  /**
+   * ccw: Tests wheter the given points are in a counter clockwise 
+   * rotation or if they are in a clockwise rotation from each other
+   * @vn: The points to be tested.
+   * @returns: The area of the triangle formed by the points. If the
+   * area is < 0 then the points are ina a clockwise rotation. Or if
+   * the area is 0 then the points are collinear. Else the points are
+   * in a ccw rotation.
+   */
+  Math::Scalar ccw(Math::Vector4 v1, Math::Vector4 v2, Math::Vector4 v3);
 
 public:
   GLCanvas(scv::Point p1, scv::Point p2);
