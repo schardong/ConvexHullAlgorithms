@@ -31,6 +31,7 @@ std::vector<Math::Vector4>::iterator GLCanvas::collisionTest(Math::Vector4 p)
 
 Math::Scalar GLCanvas::ccw(Math::Vector4 v1, Math::Vector4 v2, Math::Vector4 v3)
 {
+  Math::Scalar a = (v1[0] * v2[1] + v2[0] * v3[1] + v3[0] * v1[1]) - (v3[0] * v2[1] + v1[0] * v3[1] + v2[0] * v1[1]);
   return (v1[0] * v2[1] + v2[0] * v3[1] + v3[0] * v1[1]) - (v3[0] * v2[1] + v1[0] * v3[1] + v2[0] * v1[1]);
 }
 
@@ -134,13 +135,13 @@ std::vector<int> GLCanvas::grahamScan(std::vector<Math::Vector4> points)
       }
     }
 
-    do
+    /*do
     {
       for(int i = 2; i < points.size() - 1; i++)
       {
         if(ccw(points[i - 2], points[i - 1], points[i]) <= 0)
         {
-          std::cout << "CCW <= 0\t" << ccw(points[i - 1], points[i], points[i + 1]) << std::endl;
+          std::cout << "CCW <= 0\t" << ccw(points[i - 2], points[i - 1], points[i]) << std::endl;
           std::cout << "\t" << i - 2 << "  " << i - 1 << "  " << i << std::endl;
           std::cout << "\t" << points[i - 1] << "  " << points[i] << "  " << points[i + 1] << std::endl;
           continue;
@@ -153,7 +154,7 @@ std::vector<int> GLCanvas::grahamScan(std::vector<Math::Vector4> points)
         }
 
       }
-    } while(chPointsIdx[chPointsIdx.size() - 1] != chPointsIdx[0]);
+    } while(chPointsIdx[chPointsIdx.size() - 1] != chPointsIdx[0]);*/
 
   }
   
