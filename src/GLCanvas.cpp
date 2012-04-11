@@ -23,6 +23,7 @@ GLCanvas::~GLCanvas()
 
 std::vector<Math::Vector4>::iterator GLCanvas::collisionTest(Math::Vector4 p)
 {
+  
   for(auto it = m_vPoints.begin(); it != m_vPoints.end(); it++)
     if(p[0] > (*it)[0] - g_pointRadius && p[0] < (*it)[0] + g_pointRadius && p[1] > (*it)[1] - g_pointRadius && p[1] < (*it)[1] + g_pointRadius)
       return it;
@@ -133,6 +134,11 @@ std::vector<int> GLCanvas::grahamScan(std::vector<Math::Vector4> points)
           points[j] = aux;
         }
       }
+    }
+
+    for(int i = 2; i < points.size(); i++)
+    {
+      std::cout << "Points " << i-2 << " " << i-1 << " " << i << "   Area = " << ccw(points[i-2], points[i-1], points[i]) << std::endl;
     }
 
     /*do
