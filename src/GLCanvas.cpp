@@ -97,25 +97,28 @@ std::vector<int> GLCanvas::giftWrap(std::vector<Math::Vector4> points)
 
 std::vector<int> GLCanvas::grahamScan(std::vector<Math::Vector4> points)
 {
-  std::cout << "GLCanvas::grahamScan -> partially implemented!" << std::endl;
   std::vector<int> chPointsIdx;
-  std::vector<Math::Vector4> tmpPoints = points;
   std::vector<int> pointsIdx;
+  std::vector<Math::Vector4> sortedPoints = points;
+  int i;
 
   if(points.size() > 2)
   {
     Math::Scalar y = (Math::Scalar) getHeight();
     int idx = -1;
 
-    for(int i = 0; i < points.size(); i++)
+    for(i = 0; i < points.size(); i++)
+    {
       pointsIdx.push_back(i);
+      sortedPoints[i][1] = y - sortedPoints[i][1];
+    }
 
     //Finds the upmost point of the set.
-    for(int i = 0; i < tmpPoints.size(); i++)
+    for(i--; i >= 0; i--)
     {
-      if(tmpPoints[i][1] < y)
+      if(sortedPoints[i][1] < y)
       {
-        y = tmpPoints[i][1];
+        y = sortedPoints[i][1];
         idx = i;
       }
     }
@@ -123,17 +126,17 @@ std::vector<int> GLCanvas::grahamScan(std::vector<Math::Vector4> points)
     //Sort the points by their angle with the X axis.
     //Bubble sort for simplicity sake.
     Math::Vector4 xVector(1, 0);
-    for(int i = 0; i < tmpPoints.size(); i++)
+    for(i = 0; i < sortedPoints.size(); i++)
     {
-      Math::Scalar iAng = Math::ArcCosine(xVector * tmpPoints[i].normalized());
-      for(int j = i+1; j < tmpPoints.size(); j++)
+      Math::Scalar iAng = xVector * sortedPoints[i].normalized();
+      for(int j = i + 1; j < sortedPoints.size(); j++)
       {
-        Math::Scalar jAng = Math::ArcCosine(xVector * tmpPoints[j].normalized());
-        if(jAng < iAng)
+        Math::Scalar jAng = xVector * sortedPoints[j].normalized();
+        if(jAng >= iAng)
         {
-          Math::Vector4 auxVec = tmpPoints[i];
-          tmpPoints[i] = tmpPoints[j];
-          tmpPoints[j] = auxVec;
+          Math::Vector4 auxVec = sortedPoints[i];
+          sortedPoints[i] = sortedPoints[j];
+          sortedPoints[j] = auxVec;
           int auxInt = pointsIdx[i];
           pointsIdx[i] = pointsIdx[j];
           pointsIdx[j] = auxInt;
@@ -144,34 +147,50 @@ std::vector<int> GLCanvas::grahamScan(std::vector<Math::Vector4> points)
     chPointsIdx.push_back(pointsIdx[0]);
     chPointsIdx.push_back(pointsIdx[1]);
 
-    for(int i = 2; i < pointsIdx.size(); i++)
-      std::cout << "Points " << pointsIdx[i-2] << " " << pointsIdx[i-1] << " " << pointsIdx[i] << "   Area = " << ccw(points[pointsIdx[i-2]], points[pointsIdx[i-1]], points[pointsIdx[i]]) << std::endl;
+    std::cout << "First points. " << chPointsIdx[0] << ", " << chPointsIdx[1] << std::endl;
+    std::cout << "Sorted points indices. ";
+    for(i = 0; i < pointsIdx.size(); i++)
+      std::cout << pointsIdx[i] << " ";
     std::cout << std::endl;
 
-
-    /*do
+    i = 2;
+    do
     {
-      for(int i = 2; i < points.size() - 1; i++)
+      if(chPointsIdx.size() < 2)
+        break;
+
+      Math::Scalar area = ccw(sortedPoints[chPointsIdx[chPointsIdx.size() - 2]], sortedPoints[chPointsIdx[chPointsIdx.size() - 1]], sortedPoints[i]);
+      if(area > 0)
+        chPointsIdx.push_back(i);
+      else
       {
-        if(ccw(points[i - 2], points[i - 1], points[i]) <= 0)
-        {
-          std::cout << "CCW <= 0\t" << ccw(points[i - 2], points[i - 1], points[i]) << std::endl;
-          std::cout << "\t" << i - 2 << "  " << i - 1 << "  " << i << std::endl;
-          std::cout << "\t" << points[i - 1] << "  " << points[i] << "  " << points[i + 1] << std::endl;
-          continue;
-        }
-
-        if(ccw(points[i - 1], points[i], points[i + 1]) > 0)
-        {
-          chPointsIdx.push_back(i);
-          std::cout << i << " added to the hull." << std::endl;
-        }
-
+        chPointsIdx.erase(chPointsIdx.end() - 1);
+        chPointsIdx.push_back(i);
       }
-    } while(chPointsIdx[chPointsIdx.size() - 1] != chPointsIdx[0]);*/
+      i++;
+    } while(chPointsIdx[chPointsIdx.size() - 1] != chPointsIdx[0]);
 
   }
-  
+
+  //Sorting the result to build the convex polygon correctly.
+  /*for(i = 0; i < chPointsIdx.size() - 1; i++)
+  {
+    for(int j = i + 1; j < chPointsIdx.size(); j++)
+    {
+      if(chPointsIdx[i] > chPointsIdx[j])
+      {
+        int aux = chPointsIdx[i];
+        chPointsIdx[i] = chPointsIdx[j];
+        chPointsIdx[j] = aux;
+      }
+    }
+  }*/
+
+  std::cout << "Convex hull indices. ";
+  for(i = 0; i < chPointsIdx.size(); i++)
+    std::cout << chPointsIdx[i] << " ";
+  std::cout << std::endl;
+
   return chPointsIdx;
 }
 
@@ -276,12 +295,8 @@ void GLCanvas::onKeyPressed(const scv::KeyEvent& evt)
     if(convexHull.size() > 2)
     {
       for(int i = 1; i < convexHull.size(); i++)
-      {
-        std::cout << convexHull[i - 1] << " ";
         m_vEdges.push_back(Edge(m_vPoints[convexHull[i - 1]], m_vPoints[convexHull[i]]));
-      }
       m_vEdges.push_back(Edge(m_vPoints[convexHull[convexHull.size() - 1]], m_vPoints[convexHull[0]]));
-      std::cout << convexHull[convexHull.size() - 1] << std::endl;
     }
     break;
   case GLUT_KEY_F3:
@@ -292,6 +307,7 @@ void GLCanvas::onKeyPressed(const scv::KeyEvent& evt)
   case GLUT_KEY_F4:
     m_vPoints.clear();
     m_vEdges.clear();
+    system("cls");
     break;
   }
 }
