@@ -32,11 +32,11 @@ private:
    * rotation or if they are in a clockwise rotation from each other
    * @vn: The points to be tested.
    * @returns: The area of the triangle formed by the points. If the
-   * area is < 0 then the points are ina a clockwise rotation. Or if
+   * area is < 0 then the points are in a clockwise rotation. Or if
    * the area is 0 then the points are collinear. Else the points are
    * in a ccw rotation.
    */
-  Math::Scalar ccw(Math::Vector4 v1, Math::Vector4 v2, Math::Vector4 v3);
+  Math::Scalar ccw(Math::Vector4 v0, Math::Vector4 v1, Math::Vector4 v2);
 
 public:
   GLCanvas(scv::Point p1, scv::Point p2);

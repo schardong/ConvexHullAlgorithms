@@ -30,10 +30,9 @@ std::vector<Math::Vector4>::iterator GLCanvas::collisionTest(Math::Vector4 p)
   return m_vPoints.end();
 }
 
-Math::Scalar GLCanvas::ccw(Math::Vector4 v1, Math::Vector4 v2, Math::Vector4 v3)
+Math::Scalar GLCanvas::ccw(Math::Vector4 v0, Math::Vector4 v1, Math::Vector4 v2)
 {
-  Math::Scalar a = (v1[0] * v2[1] + v2[0] * v3[1] + v3[0] * v1[1]) - (v3[0] * v2[1] + v1[0] * v3[1] + v2[0] * v1[1]);
-  return (v1[0] * v2[1] + v2[0] * v3[1] + v3[0] * v1[1]) - (v3[0] * v2[1] + v1[0] * v3[1] + v2[0] * v1[1]);
+  return (v1[0] - v0[0]) * (v2[1] - v0[1]) - (v2[0] - v0[0]) * (v1[1] - v0[1]);
 }
 
 std::vector<int> GLCanvas::giftWrap(std::vector<Math::Vector4> points)
@@ -100,46 +99,55 @@ std::vector<int> GLCanvas::grahamScan(std::vector<Math::Vector4> points)
 {
   std::cout << "GLCanvas::grahamScan -> partially implemented!" << std::endl;
   std::vector<int> chPointsIdx;
+  std::vector<Math::Vector4> tmpPoints = points;
+  std::vector<int> pointsIdx;
 
   if(points.size() > 2)
   {
     Math::Scalar y = (Math::Scalar) getHeight();
     int idx = -1;
-    
-    //Finds the upmost point of the set.
+
     for(int i = 0; i < points.size(); i++)
+      pointsIdx.push_back(i);
+
+    //Finds the upmost point of the set.
+    for(int i = 0; i < tmpPoints.size(); i++)
     {
-      if(points[i][1] < y)
+      if(tmpPoints[i][1] < y)
       {
-        y = points[i][1];
+        y = tmpPoints[i][1];
         idx = i;
       }
     }
-    //Add the point found to the convex hull vector.
-    chPointsIdx.push_back(idx);
 
     //Sort the points by their angle with the X axis.
     //Bubble sort for simplicity sake.
     Math::Vector4 xVector(1, 0);
-    for(int i = 0; i < points.size(); i++)
+    for(int i = 0; i < tmpPoints.size(); i++)
     {
-      Math::Scalar iAng = xVector * points[i].normalized();
-      for(int j = 0; j < points.size(); j++)
+      Math::Scalar iAng = Math::ArcCosine(xVector * tmpPoints[i].normalized());
+      for(int j = i+1; j < tmpPoints.size(); j++)
       {
-        Math::Scalar jAng = xVector * points[j].normalized();
+        Math::Scalar jAng = Math::ArcCosine(xVector * tmpPoints[j].normalized());
         if(jAng < iAng)
         {
-          Math::Vector4 aux = points[i];
-          points[i] = points[j];
-          points[j] = aux;
+          Math::Vector4 auxVec = tmpPoints[i];
+          tmpPoints[i] = tmpPoints[j];
+          tmpPoints[j] = auxVec;
+          int auxInt = pointsIdx[i];
+          pointsIdx[i] = pointsIdx[j];
+          pointsIdx[j] = auxInt;
         }
       }
     }
 
-    for(int i = 2; i < points.size(); i++)
-    {
-      std::cout << "Points " << i-2 << " " << i-1 << " " << i << "   Area = " << ccw(points[i-2], points[i-1], points[i]) << std::endl;
-    }
+    chPointsIdx.push_back(pointsIdx[0]);
+    chPointsIdx.push_back(pointsIdx[1]);
+
+    for(int i = 2; i < pointsIdx.size(); i++)
+      std::cout << "Points " << pointsIdx[i-2] << " " << pointsIdx[i-1] << " " << pointsIdx[i] << "   Area = " << ccw(points[pointsIdx[i-2]], points[pointsIdx[i-1]], points[pointsIdx[i]]) << std::endl;
+    std::cout << std::endl;
+
 
     /*do
     {
