@@ -10,13 +10,19 @@ private:
 protected:
   static const int s_defaultWindowWidth = 1280;
   static const int s_defaultWindowHeight = 720;
-  scv::Panel *m_pMainPanel;
+  scv::Panel* m_pMainPanel;
+  scv::ButtonGroup* m_pAlgorithmSelector;
 
 public:
   Application(void);
   virtual ~Application(void);
 
   void init(void);
+
+  inline scv::ButtonGroup* getAlgorithmSelector()
+  {
+    return m_pAlgorithmSelector;
+  }
 
   //SCVCallbacks
   virtual void onMouseClick(const scv::MouseEvent &evt);

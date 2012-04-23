@@ -5,11 +5,14 @@
 #include "GLCanvas.hpp"
 
 #include "Edge.hpp"
+#include "Application.h"
 
-GLCanvas::GLCanvas(scv::Point p1, scv::Point p2) : scv::Canvas(p1, p2)
+GLCanvas::GLCanvas(scv::Point p1, scv::Point p2, Application* app) : scv::Canvas(p1, p2)
 {
   m_bMouseHeld = false;
   m_pSelectedPoint = NULL;
+  m_pApp = app;
+  m_pApp->getAlgorithmSelector()->getActive();
   glPointSize(g_pointRadius);
 }
 
@@ -221,6 +224,33 @@ void GLCanvas::onMouseClick(const scv::MouseEvent &evt)
   }
 
   m_vEdges.clear();
+  /*std::vector<int> convexHull;
+  if(m_vPoints.size() > 2)
+  {
+    if(m_pApp->getAlgorithmSelector()->getActive() == 0)
+    {
+      convexHull = giftWrap(m_vPoints);
+      m_vEdges.clear();
+      if(convexHull.size() > 2)
+      {
+        for(int i = 1; i < convexHull.size(); i++)
+          m_vEdges.push_back(Edge(m_vPoints[convexHull[i - 1]], m_vPoints[convexHull[i]]));
+        m_vEdges.push_back(Edge(m_vPoints[convexHull[convexHull.size() - 1]], m_vPoints[convexHull[0]]));
+      }
+    }
+    else if(m_pApp->getAlgorithmSelector()->getActive() == 1)
+    {
+      convexHull = grahamScan(m_vPoints);
+      m_vEdges.clear();
+      if(convexHull.size() > 2)
+      {
+        for(int i = 1; i < convexHull.size(); i++)
+          m_vEdges.push_back(Edge(m_vPoints[convexHull[i - 1]], m_vPoints[convexHull[i]]));
+        m_vEdges.push_back(Edge(m_vPoints[convexHull[convexHull.size() - 1]], m_vPoints[convexHull[0]]));
+      }
+    }
+  }*/
+
 }
 
 void GLCanvas::onMouseHold (const scv::MouseEvent &evt)
