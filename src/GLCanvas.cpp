@@ -32,7 +32,7 @@ std::vector<Math::Vector4>::iterator GLCanvas::collisionTest(Math::Vector4 p)
 
 Math::Scalar GLCanvas::ccw(Math::Vector4 v0, Math::Vector4 v1, Math::Vector4 v2)
 {
-  return (v1[0] - v0[0]) * (v2[1] - v0[1]) - (v2[0] - v0[0]) * (v1[1] - v0[1]);
+  return ((v1[0] - v0[0]) * (v2[1] - v0[1])) - ((v2[0] - v0[0]) * (v1[1] - v0[1]));
 }
 
 std::vector<int> GLCanvas::giftWrap(std::vector<Math::Vector4> points)
@@ -73,7 +73,7 @@ std::vector<int> GLCanvas::giftWrap(std::vector<Math::Vector4> points)
           continue;
         
         //If the angle is smaller than the smallest angle so far and the points are not collinear
-        //we store the index of the point, for he is convexHull good candidate to be in the convex hull.
+        //we store the index of the point, for he is a good candidate to be in the convex hull.
         if(angle < smlAngle && angle != 0.0 && angle != Math::PI && angle != 2 * Math::PI)
         {
           smlAngle = angle;
@@ -81,7 +81,7 @@ std::vector<int> GLCanvas::giftWrap(std::vector<Math::Vector4> points)
         }
       }
 
-      //If we found convexHull vaild point for the convex hull, we add it to the vector and chose convexHull new pivot
+      //If we found a valid point for the convex hull, we add it to the vector and chose a new pivot
       //point based on him and the last point added.
       if(idx >= 0 && idx < points.size())
       {
@@ -108,12 +108,9 @@ std::vector<int> GLCanvas::grahamScan(std::vector<Math::Vector4> points)
     int idx = -1;
 
     for(i = 0; i < points.size(); i++)
-    {
       pointsIdx.push_back(i);
-      sortedPoints[i][1] = y - sortedPoints[i][1];
-    }
 
-    //Finds the upmost point of the set.
+    //Finds the lowest point of the set.
     for(i--; i >= 0; i--)
     {
       if(sortedPoints[i][1] < y)
@@ -123,74 +120,60 @@ std::vector<int> GLCanvas::grahamScan(std::vector<Math::Vector4> points)
       }
     }
 
-    //Sort the points by their angle with the X axis.
-    //Bubble sort for simplicity sake.
-    Math::Vector4 xVector(1, 0);
-    for(i = 0; i < sortedPoints.size(); i++)
+    //The lowest point will be our pivot.
+    if(idx != 0)
     {
-      Math::Scalar iAng = xVector * sortedPoints[i].normalized();
-      for(int j = i + 1; j < sortedPoints.size(); j++)
+      std::swap(sortedPoints[0], sortedPoints[idx]);
+      std::swap(pointsIdx[0], pointsIdx[idx]);
+    }
+
+    //Sort the points by their angle with lowest point.
+    //Bubble sort for simplicity sake.
+    Math::Vector4 currPoint(1, 0);
+    idx = -1;
+    for(i = 1; i < sortedPoints.size(); i++)
+    {
+      Math::Scalar smlAngle = 2 * Math::PI;
+      idx = -1;
+      for(int j = i; j < sortedPoints.size(); j++)
       {
-        Math::Scalar jAng = xVector * sortedPoints[j].normalized();
-        if(jAng >= iAng)
+        Math::Scalar jAng = Math::ArcCosine(currPoint * (sortedPoints[j] - sortedPoints[0]).normalized());
+        if(jAng < smlAngle)
         {
-          Math::Vector4 auxVec = sortedPoints[i];
-          sortedPoints[i] = sortedPoints[j];
-          sortedPoints[j] = auxVec;
-          int auxInt = pointsIdx[i];
-          pointsIdx[i] = pointsIdx[j];
-          pointsIdx[j] = auxInt;
+          smlAngle = jAng;
+          idx = j;
         }
+      }
+      if(idx >= 0)
+      {
+        currPoint = (sortedPoints[idx] - sortedPoints[0]).normalized();
+        std::swap(sortedPoints[i], sortedPoints[idx]);
+        std::swap(pointsIdx[i], pointsIdx[idx]);
       }
     }
 
     chPointsIdx.push_back(pointsIdx[0]);
     chPointsIdx.push_back(pointsIdx[1]);
 
-    std::cout << "First points. " << chPointsIdx[0] << ", " << chPointsIdx[1] << std::endl;
-    std::cout << "Sorted points indices. ";
-    for(i = 0; i < pointsIdx.size(); i++)
-      std::cout << pointsIdx[i] << " ";
-    std::cout << std::endl;
-
+    //Here we test calculate the area of the triangle formed by each of the three points considered.
+    //If the area is <= 0, then we remove the middle point from the convex hull.
     i = 2;
-    do
+    while(i < pointsIdx.size())
     {
-      if(chPointsIdx.size() < 2)
-        break;
-
-      Math::Scalar area = ccw(sortedPoints[chPointsIdx[chPointsIdx.size() - 2]], sortedPoints[chPointsIdx[chPointsIdx.size() - 1]], sortedPoints[i]);
-      if(area > 0)
-        chPointsIdx.push_back(i);
+      Math::Scalar area = ccw(points[*(chPointsIdx.end() - 2)], points[*(chPointsIdx.end() - 1)], points[pointsIdx[i]]);
+      if(area < 0)
+      {
+        if(chPointsIdx.size() > 2)
+          chPointsIdx.pop_back();
+      }
       else
       {
-        chPointsIdx.erase(chPointsIdx.end() - 1);
-        chPointsIdx.push_back(i);
-      }
-      i++;
-    } while(chPointsIdx[chPointsIdx.size() - 1] != chPointsIdx[0]);
-
-  }
-
-  //Sorting the result to build the convex polygon correctly.
-  /*for(i = 0; i < chPointsIdx.size() - 1; i++)
-  {
-    for(int j = i + 1; j < chPointsIdx.size(); j++)
-    {
-      if(chPointsIdx[i] > chPointsIdx[j])
-      {
-        int aux = chPointsIdx[i];
-        chPointsIdx[i] = chPointsIdx[j];
-        chPointsIdx[j] = aux;
+        chPointsIdx.push_back(pointsIdx[i]);
+        i++;
       }
     }
-  }*/
 
-  std::cout << "Convex hull indices. ";
-  for(i = 0; i < chPointsIdx.size(); i++)
-    std::cout << chPointsIdx[i] << " ";
-  std::cout << std::endl;
-
+  }
   return chPointsIdx;
 }
 
