@@ -17,7 +17,7 @@ private:
   std::vector<Math::Vector4> m_vPoints;
   std::vector<Edge> m_vEdges;
   Math::Vector4* m_pSelectedPoint;
-  Application* m_pApp;
+  scv::ButtonGroup* m_pButtonGroup;
   bool m_bMouseHeld;
 
   /**
@@ -41,12 +41,13 @@ private:
   Math::Scalar ccw(Math::Vector4 v0, Math::Vector4 v1, Math::Vector4 v2);
 
 public:
-  GLCanvas(scv::Point p1, scv::Point p2, Application* app);
+  GLCanvas(scv::Point p1, scv::Point p2, scv::ButtonGroup* bg);
   virtual ~GLCanvas();
 
   //Convex Hull functions.
   std::vector<int> giftWrap(std::vector<Math::Vector4> points);
   std::vector<int> grahamScan(std::vector<Math::Vector4> points);
+  void applyConvexHull();
 
   //Drawing callbacks.
   void render();

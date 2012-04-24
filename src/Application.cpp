@@ -28,8 +28,6 @@ void Application::init(void)
 
   scv::InternalFrame *internalFrame1 = new scv::InternalFrame(978, 792, "Canvas");
   addComponent(internalFrame1);
-  GLCanvas *canvas0 = new GLCanvas(scv::Point(0,0), scv::Point(978, 792), this);
-  canvas0->setParent(internalFrame1->getPanel());
 
   scv::RadioButton* giftWrapButton = new scv::RadioButton(scv::Point(1020, 50), true, "Gift Wrap(Jarvis)");
   scv::RadioButton* grahamScanButton = new scv::RadioButton(scv::Point(1020, 70), false, "Graham Scan");
@@ -38,6 +36,9 @@ void Application::init(void)
   grahamScanButton->registerButtonGroup(m_pAlgorithmSelector);
   addComponent(giftWrapButton);
   addComponent(grahamScanButton);
+
+  GLCanvas *canvas0 = new GLCanvas(scv::Point(0,0), scv::Point(978, 792), m_pAlgorithmSelector);
+  canvas0->setParent(internalFrame1->getPanel());
 }
 
 void Application::onMouseClick(const scv::MouseEvent &evt)

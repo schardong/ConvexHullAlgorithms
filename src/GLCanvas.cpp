@@ -7,12 +7,11 @@
 #include "Edge.hpp"
 #include "Application.h"
 
-GLCanvas::GLCanvas(scv::Point p1, scv::Point p2, Application* app) : scv::Canvas(p1, p2)
+GLCanvas::GLCanvas(scv::Point p1, scv::Point p2, scv::ButtonGroup* bg) : scv::Canvas(p1, p2)
 {
   m_bMouseHeld = false;
   m_pSelectedPoint = NULL;
-  m_pApp = app;
-  m_pApp->getAlgorithmSelector()->getActive();
+  m_pButtonGroup = bg;
   glPointSize(g_pointRadius);
 }
 
@@ -26,7 +25,6 @@ GLCanvas::~GLCanvas()
 
 std::vector<Math::Vector4>::iterator GLCanvas::collisionTest(Math::Vector4 p)
 {
-  
   for(auto it = m_vPoints.begin(); it != m_vPoints.end(); it++)
     if(p[0] > (*it)[0] - g_pointRadius && p[0] < (*it)[0] + g_pointRadius && p[1] > (*it)[1] - g_pointRadius && p[1] < (*it)[1] + g_pointRadius)
       return it;
@@ -180,6 +178,31 @@ std::vector<int> GLCanvas::grahamScan(std::vector<Math::Vector4> points)
   return chPointsIdx;
 }
 
+void GLCanvas::applyConvexHull()
+{
+  std::vector<int> convexHull;
+  if(m_pButtonGroup->getActive() == 0) //If the jarvis is selected.
+  {
+    convexHull = giftWrap(m_vPoints);
+    if(convexHull.size() > 2)
+    {
+      for(int i = 1; i < convexHull.size(); i++)
+        m_vEdges.push_back(Edge(m_vPoints[convexHull[i - 1]], m_vPoints[convexHull[i]]));
+      m_vEdges.push_back(Edge(m_vPoints[convexHull[convexHull.size() - 1]], m_vPoints[convexHull[0]]));
+    }
+  }
+  else if(m_pButtonGroup->getActive() == 1) //If the graham scan is selected.
+  {
+    convexHull = grahamScan(m_vPoints);
+    if(convexHull.size() > 2)
+    {
+      for(int i = 1; i < convexHull.size(); i++)
+        m_vEdges.push_back(Edge(m_vPoints[convexHull[i - 1]], m_vPoints[convexHull[i]]));
+      m_vEdges.push_back(Edge(m_vPoints[convexHull[convexHull.size() - 1]], m_vPoints[convexHull[0]]));
+    }
+  }
+}
+
 void GLCanvas::render()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -224,33 +247,8 @@ void GLCanvas::onMouseClick(const scv::MouseEvent &evt)
   }
 
   m_vEdges.clear();
-  /*std::vector<int> convexHull;
-  if(m_vPoints.size() > 2)
-  {
-    if(m_pApp->getAlgorithmSelector()->getActive() == 0)
-    {
-      convexHull = giftWrap(m_vPoints);
-      m_vEdges.clear();
-      if(convexHull.size() > 2)
-      {
-        for(int i = 1; i < convexHull.size(); i++)
-          m_vEdges.push_back(Edge(m_vPoints[convexHull[i - 1]], m_vPoints[convexHull[i]]));
-        m_vEdges.push_back(Edge(m_vPoints[convexHull[convexHull.size() - 1]], m_vPoints[convexHull[0]]));
-      }
-    }
-    else if(m_pApp->getAlgorithmSelector()->getActive() == 1)
-    {
-      convexHull = grahamScan(m_vPoints);
-      m_vEdges.clear();
-      if(convexHull.size() > 2)
-      {
-        for(int i = 1; i < convexHull.size(); i++)
-          m_vEdges.push_back(Edge(m_vPoints[convexHull[i - 1]], m_vPoints[convexHull[i]]));
-        m_vEdges.push_back(Edge(m_vPoints[convexHull[convexHull.size() - 1]], m_vPoints[convexHull[0]]));
-      }
-    }
-  }*/
-
+  applyConvexHull();
+  
 }
 
 void GLCanvas::onMouseHold (const scv::MouseEvent &evt)
@@ -279,12 +277,14 @@ void GLCanvas::onMouseHold (const scv::MouseEvent &evt)
   }
 
   m_vEdges.clear();
+  applyConvexHull();
 }
 
 void GLCanvas::onMouseUp(const scv::MouseEvent &evt)
 {
   m_pSelectedPoint = NULL;
   m_bMouseHeld = false;
+  applyConvexHull();
 }
 
 void GLCanvas::onKeyPressed(const scv::KeyEvent& evt)
@@ -292,35 +292,10 @@ void GLCanvas::onKeyPressed(const scv::KeyEvent& evt)
   std::vector<int> convexHull;
   switch(evt.keycode)
   {
-  case GLUT_KEY_F1:
-    convexHull = giftWrap(m_vPoints);
-    m_vEdges.clear();
-    if(convexHull.size() > 2)
-    {
-      for(int i = 1; i < convexHull.size(); i++)
-        m_vEdges.push_back(Edge(m_vPoints[convexHull[i - 1]], m_vPoints[convexHull[i]]));
-      m_vEdges.push_back(Edge(m_vPoints[convexHull[convexHull.size() - 1]], m_vPoints[convexHull[0]]));
-    }
-    break;
-  case GLUT_KEY_F2:
-    convexHull = grahamScan(m_vPoints);
-    m_vEdges.clear();
-    if(convexHull.size() > 2)
-    {
-      for(int i = 1; i < convexHull.size(); i++)
-        m_vEdges.push_back(Edge(m_vPoints[convexHull[i - 1]], m_vPoints[convexHull[i]]));
-      m_vEdges.push_back(Edge(m_vPoints[convexHull[convexHull.size() - 1]], m_vPoints[convexHull[0]]));
-    }
-    break;
   case GLUT_KEY_F3:
-    for(int i = 0; i < m_vPoints.size(); i++)
-      std::cout << m_vPoints[i] << std::endl;
-    std::cout << std::endl;
-    break;
-  case GLUT_KEY_F4:
     m_vPoints.clear();
+  case GLUT_KEY_F4:
     m_vEdges.clear();
-    system("cls");
     break;
   }
 }
