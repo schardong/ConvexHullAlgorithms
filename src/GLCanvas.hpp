@@ -2,10 +2,10 @@
 #define __GL_CANVAS_HPP__
 
 #include <SCV/Canvas.h>
-#include <Vector4.hpp>
-#include <Scalar.hpp>
+#include <SCV/Point.h>
+#include <CoreMath/Vector4.hpp>
+#include <CoreMath/Scalar.hpp>
 
-class scv::Point;
 class Edge;
 class Application;
 
@@ -14,9 +14,9 @@ static const GLfloat g_pointRadius = 9.f;
 class GLCanvas : public scv::Canvas
 {
 private:
-  std::vector<Math::Vector4> m_vPoints;
+  std::vector<CoreMath::Vector4> m_vPoints;
   std::vector<Edge> m_vEdges;
-  Math::Vector4* m_pSelectedPoint;
+  CoreMath::Vector4* m_pSelectedPoint;
   scv::ButtonGroup* m_pButtonGroup;
   bool m_bMouseHeld;
 
@@ -27,7 +27,7 @@ private:
    * @returns: An iterator to the point hit, or end() if no point was
    * hit.
    */
-  std::vector<Math::Vector4>::iterator collisionTest(Math::Vector4 p);
+  std::vector<CoreMath::Vector4>::iterator collisionTest(CoreMath::Vector4 p);
 
   /**
    * ccw: Tests wheter the given points are in a counter clockwise 
@@ -38,15 +38,15 @@ private:
    * the area is 0 then the points are collinear. Else the points are
    * in a ccw rotation.
    */
-  Math::Scalar ccw(Math::Vector4 v0, Math::Vector4 v1, Math::Vector4 v2);
+  CoreMath::Scalar ccw(CoreMath::Vector4 v0, CoreMath::Vector4 v1, CoreMath::Vector4 v2);
 
 public:
   GLCanvas(scv::Point p1, scv::Point p2, scv::ButtonGroup* bg);
   virtual ~GLCanvas();
 
   //Convex Hull functions.
-  std::vector<int> giftWrap(std::vector<Math::Vector4> points);
-  std::vector<int> grahamScan(std::vector<Math::Vector4> points);
+  std::vector<int> giftWrap(std::vector<CoreMath::Vector4> points);
+  std::vector<int> grahamScan(std::vector<CoreMath::Vector4> points);
   void applyConvexHull();
 
   //Drawing callbacks.

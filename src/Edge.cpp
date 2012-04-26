@@ -1,7 +1,7 @@
 #include <SCV/SCV.h>
 #include "Edge.hpp"
 
-Edge::Edge(Math::Vector4 p, Math::Vector4 q)
+Edge::Edge(CoreMath::Vector4 p, CoreMath::Vector4 q)
 {
   m_aPoints[0] = p;
   m_aPoints[1] = q;
